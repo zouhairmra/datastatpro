@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import statsmodels.api as sm
 from linearmodels.panel import PanelOLS, RandomEffects
-from linearmodels.iv import GMM
+ 
 
 st.title("📊 Econometric Modeling: Time Series & Panel Data")
 
