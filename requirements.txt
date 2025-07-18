@@ -1,6 +1,6 @@
-
 streamlit
 pandas
 matplotlib
 statsmodels
 openpyxl
+linearmodels
