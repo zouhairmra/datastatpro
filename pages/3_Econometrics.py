@@ -52,14 +52,6 @@ if uploaded_file:
                 results = model.fit()
                 st.text(results.summary)
 
-            elif estimation_type == "GMM":
-                st.info("GMM is advanced and may require specific instruments structure.")
-                try:
-                    model = GMM(df_panel[y], exog)
-                    results = model.fit()
-                    st.text(results.summary)
-                except Exception as e:
-                    st.error(f"GMM estimation failed: {e}")
-
+          
 else:
     st.info("Please upload a dataset to begin analysis.")
