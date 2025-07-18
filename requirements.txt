@@ -1,9 +1,6 @@
 
 streamlit
 pandas
-Pillow
 matplotlib
-seaborn
-plotly
 statsmodels
 openpyxl
