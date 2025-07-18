@@ -45,11 +45,24 @@ if uploaded_file:
         ax3.set_title(f"Histogram of {value_col}")
         st.pyplot(fig3)
 
-        st.write("### 🔗 Correlation Matrix Heatmap")
-        corr = df[numeric_cols].corr()
-        fig4, ax4 = plt.subplots()
-        sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax4)
-        st.pyplot(fig4)
+      # ...
+
+st.write("### 🔗 Correlation Matrix Heatmap")
+
+selected_corr_vars = st.multiselect(
+    "Select numeric variables to include in correlation matrix",
+    numeric_cols,
+    default=numeric_cols
+)
+
+if len(selected_corr_vars) >= 2:
+    corr = df[selected_corr_vars].corr()
+    fig4, ax4 = plt.subplots()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax4)
+    st.pyplot(fig4)
+else:
+    st.info("Select at least two variables for correlation matrix.")
+
 
     except Exception as e:
         st.error(f"Error: {e}")
