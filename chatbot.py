@@ -38,29 +38,23 @@ def run_chatbot():
         else:
             st.markdown(f"**🤖 Bot:** {message['content']}")
 
-    # Input area and submit button
-    user_input = st.text_input("💬 Ask a question", key="user_input")
+    # Input area with key user_input
+user_input = st.text_input("💬 Ask a question", key="user_input")
 
-    if st.button("Send") and user_input.strip():
-        # Append user input to history
-        st.session_state.history.append({"role": "user", "content": user_input.strip()})
+if st.button("Send") and user_input.strip():
+    st.session_state.history.append({"role": "user", "content": user_input.strip()})
 
-        # Build prompt from conversation history
-        full_prompt = "You are a helpful assistant.\n\n"
-        for msg in st.session_state.history:
-            role = "User" if msg["role"] == "user" else "Assistant"
-            full_prompt += f"{role}: {msg['content']}\n"
-        full_prompt += "Assistant:"
+    # Build prompt from conversation history
+    full_prompt = "You are a helpful assistant.\n\n"
+    for msg in st.session_state.history:
+        role = "User" if msg["role"] == "user" else "Assistant"
+        full_prompt += f"{role}: {msg['content']}\n"
+    full_prompt += "Assistant:"
 
-        # Show loading spinner while getting response
-        with st.spinner("🤖 Bot is thinking..."):
-            response = get_chat_response(full_prompt)
+    with st.spinner("🤖 Bot is thinking..."):
+        response = get_chat_response(full_prompt)
 
-        # Append bot response to history
-        st.session_state.history.append({"role": "assistant", "content": response})
+    st.session_state.history.append({"role": "assistant", "content": response})
 
-        # Clear input box
-        st.session_state.user_input = ""
-
-        # Rerun to update the UI with new messages
-        st.experimental_rerun()
+    # Clear the text input by setting session_state key to empty string
+    st.session_state["user_input"] = ""
