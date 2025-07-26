@@ -1,10 +1,8 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import requests
 import openai
-from openai import OpenAI
 import sys
 import os
 st.title("🧠 AI Economics Assistant (Mistral-7B)")
