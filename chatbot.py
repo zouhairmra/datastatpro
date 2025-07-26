@@ -1,5 +1,10 @@
 import streamlit as st
 import requests
+import streamlit as st
+import os
+import requests
+
+st.write("Secrets content:", st.secrets)  # DEBUG LINE
 
 TOGETHER_API_KEY = st.secrets["together"]["api_key"]
 
