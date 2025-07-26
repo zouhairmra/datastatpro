@@ -1,41 +1,51 @@
 import streamlit as st
-import requests
+from transformers import pipeline
 
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
+# Set up the chatbot pipeline from Hugging Face (no API key needed)
+@st.cache_resource
+def load_model():
+    return pipeline(
+        "text-generation",
+        model="mistralai/Mistral-7B-Instruct-v0.2",
+        max_new_tokens=256,
+        temperature=0.7
+    )
 
-def query_huggingface(prompt):
-    try:
-        response = requests.post(API_URL, json={"inputs": prompt})
-        response.raise_for_status()
-        result = response.json()
-        if isinstance(result, list) and "generated_text" in result[0]:
-            return result[0]["generated_text"]
-        elif isinstance(result, dict) and "generated_text" in result:
-            return result["generated_text"]
-        else:
-            return "🤖 Sorry, I couldn't generate a response."
-    except requests.exceptions.RequestException as e:
-        return f"⚠️ Request error: {str(e)}"
-    except Exception as e:
-        return f"⚠️ Unexpected error: {str(e)}"
+# Load model once
+generator = load_model()
 
-def run_chatbot():
-    st.set_page_config(page_title="EconBot 💼", layout="centered")
-    st.title("💬 EconBot - Economics & Finance Chatbot")
+# Streamlit UI
+st.set_page_config(page_title="EcoChat 🤖📊", page_icon="💬")
+st.title("💬 Economics & Finance Chatbot")
+st.info("Ask any question about economics, finance, markets, or macro theory.")
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# Chat history
+if "history" not in st.session_state:
+    st.session_state.history = []
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+# User input
+user_input = st.text_input("❓ Your Question:", placeholder="E.g., What causes inflation?")
 
-    if prompt := st.chat_input("Ask about inflation, GDP, interest rates..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+if st.button("🧠 Get Answer"):
+    if user_input.strip() == "":
+        st.warning("Please enter a question.")
+    else:
+        # Add user question to history
+        st.session_state.history.append(("user", user_input))
 
-        response = query_huggingface(prompt)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        with st.chat_message("assistant"):
-            st.markdown(response)
+        # Prompt for instruction-tuned model
+        full_prompt = f"[INST] You are an economics and finance expert. Answer clearly:\n\n{user_input} [/INST]"
+
+        with st.spinner("Thinking..."):
+            output = generator(full_prompt)[0]["generated_text"]
+
+        # Extract response after the instruction
+        answer = output.split("[/INST]")[-1].strip()
+        st.session_state.history.append(("bot", answer))
+
+# Display chat history
+for speaker, text in reversed(st.session_state.history):
+    if speaker == "user":
+        st.markdown(f"**🧑‍🎓 You:** {text}")
+    else:
+        st.markdown(f"**🤖 EcoBot:** {text}")
