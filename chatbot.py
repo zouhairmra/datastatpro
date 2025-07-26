@@ -1,34 +1,58 @@
 import streamlit as st
 import requests
+st.title("🧠 AI Economics Assistant (Mistral-7B)")
 
-# ✅ Directly define your API key and endpoint here
-HF_API_KEY = "hf_YourTokenHere"
-HF_API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha"
+api_key = st.text_input("🔑 Enter your Together AI API Key", type="password")
+prompt = st.text_area("💬 Ask a question:", height=150)
 
-def query(payload):
-    headers = {
-        "Authorization": f"Bearer {HF_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    response = requests.post(HF_API_URL, headers=headers, json=payload)
-    if response.status_code == 200:
-        return response.json()[0]['generated_text']
+if st.button("Generate Answer"):
+    if not api_key:
+        st.error("❌ Please enter your API key.")
+    elif not prompt.strip():
+        st.error("❌ Please write a prompt.")
     else:
-        return f"❌ Error {response.status_code}: {response.text}"
+        url = "https://api.together.xyz/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "mistralai/Mistral-7B-Instruct-v0.2",  # ✅ Update this with your chosen model
+            "messages": [
+                {"role": "system", "content": "You are an expert in economics."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 1024
+        }
 
-def run_chatbot():
-    st.title("💬 Economics & Finance Chatbot")
+        try:
+            resp = requests.post(url, headers=headers, json=payload)
+            if resp.status_code == 200:
+                answer = resp.json()["choices"][0]["message"]["content"]
+                st.markdown("### 🤖 Answer")
+                st.write(answer)
+            else:
+                st.error(f"❌ HTTP {resp.status_code}: {resp.json()}")
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+# Optional: Let the user pick a model from supported options
+        with st.expander("🧠 Model Options"):
+            available_models = [
+                "mistralai/Mistral-7B-Instruct-v0.2",
+                "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                "meta-llama/Llama-2-7b-chat-hf"
+            ]
+            selected_model = st.selectbox("Choose a model", available_models, index=0)
+            payload["model"] = selected_model
+# Additional Features Below (do not change original block)
 
-    history = st.session_state.get("history", [])
-    user_input = st.text_input("Ask a question about economics or finance:")
+        # Allow user to adjust temperature and max_tokens dynamically
+        with st.expander("🔧 Advanced Settings"):
+            user_temp = st.slider("Temperature (creativity)", 0.0, 1.0, 0.7, 0.05)
+            user_max_tokens = st.slider("Max tokens (response length)", 256, 4096, 1024, 128)
 
-    if user_input:
-        with st.spinner("Thinking..."):
-            prompt = f"<|user|>\n{user_input}\n<|assistant|>"
-            output = query({"inputs": prompt})
-            history.append((user_input, output))
-            st.session_state["history"] = history
+        payload["temperature"] = user_temp
+        payload["max_tokens"] = user_max_tokens
 
-    for user_q, bot_a in reversed(history):
-        st.markdown(f"**You**: {user_q}")
-        st.markdown(f"**Bot**: {bot_a}")
+
