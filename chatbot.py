@@ -2,22 +2,27 @@ import streamlit as st
 import requests
 import os
 
-# Hugging Face Inference API settings
-API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct"
+# Hugging Face Inference API configuration
+API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 HF_TOKEN = os.getenv("HF_API_TOKEN")
 
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-def query(payload):
+def query_huggingface(prompt):
     try:
-        response = requests.post(API_URL, headers=headers, json=payload)
+        response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
         response.raise_for_status()
-        return response.json()[0]["generated_text"]
+        result = response.json()
+        if isinstance(result, list) and "generated_text" in result[0]:
+            return result[0]["generated_text"]
+        elif isinstance(result, dict) and "generated_text" in result:
+            return result["generated_text"]
+        else:
+            return "🤖 Sorry, I couldn't generate a response."
+    except requests.exceptions.RequestException as e:
+        return f"⚠️ Request error: {str(e)}"
     except Exception as e:
-        return f"⚠️ Error: {str(e)}"
-
-def get_bot_response(prompt):
-    return query({"inputs": prompt})
+        return f"⚠️ Unexpected error: {str(e)}"
 
 def run_chatbot():
     st.set_page_config(page_title="EconBot 💼", layout="centered")
@@ -35,7 +40,7 @@ def run_chatbot():
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        response = get_bot_response(prompt)
+        response = query_huggingface(prompt)
         st.session_state.messages.append({"role": "assistant", "content": response})
         with st.chat_message("assistant"):
             st.markdown(response)
