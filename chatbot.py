@@ -1,42 +1,68 @@
+# chatbot.py
+
 import streamlit as st
 import requests
+import os
 
-def run_chatbot():
-    st.set_page_config(page_title="📊 Economics & Finance Chatbot", layout="centered")
+TOGETHER_API_KEY = st.secrets["together"]["api_key"]
 
-    # Load Together API key from Streamlit secrets
-    API_KEY = st.secrets["together"]["api_key"]
+def get_chat_response(prompt):
+    url = "https://api.together.xyz/v1/completions"
 
-    # Together Inference API endpoint
-    API_URL = "https://api.together.xyz/v1/completions"
-    HEADERS = {
-        "Authorization": f"Bearer {API_KEY}",
+    headers = {
+        "Authorization": f"Bearer {TOGETHER_API_KEY}",
         "Content-Type": "application/json"
     }
 
-    st.title("💡 Economics & Finance Chatbot")
-    st.markdown("Ask anything about **economics** or **finance**, and get helpful answers powered by Mistral-7B.")
+    payload = {
+        "model": "mistralai/Mistral-7B-Instruct-v0.2",
+        "prompt": prompt,
+        "max_tokens": 512,
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "repetition_penalty": 1.1,
+        "stop": ["User:", "Assistant:"]
+    }
 
-    user_input = st.text_input("💬 Enter your question:", "")
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()["choices"][0]["text"].strip()
+    else:
+        return f"❌ Error {response.status_code}: {response.text}"
 
-    if st.button("Ask") and user_input.strip():
-        with st.spinner("Thinking..."):
-            payload = {
-                "model": "mistralai/Mistral-7B-Instruct-v0.2",
-                "prompt": f"Answer the following question in a clear and concise way:\n{user_input}\n",
-                "max_tokens": 256,
-                "temperature": 0.7,
-            }
+def run_chatbot():
+    st.title("🧠 ChatBot - Mistral 7B Assistant")
+    st.caption("Powered by Together AI & Mistral-7B-Instruct-v0.2")
 
-            try:
-                response = requests.post(API_URL, headers=HEADERS, json=payload)
-                response.raise_for_status()
-                result = response.json()
-                answer = result["choices"][0]["text"]
-                st.success("✅ Answer:")
-                st.write(answer.strip())
+    if "history" not in st.session_state:
+        st.session_state.history = []
 
-            except requests.exceptions.HTTPError as err:
-                st.error(f"❌ Error {err.response.status_code}: {err.response.text}")
-            except Exception as e:
-                st.error(f"❌ Unexpected error: {e}")
+    # Show the conversation so far
+    for message in st.session_state.history:
+        if message["role"] == "user":
+            st.markdown(f"**🧑 You:** {message['content']}")
+        else:
+            st.markdown(f"**🤖 Bot:** {message['content']}")
+
+    user_input = st.text_input("💬 Ask a question", key="user_input")
+    if user_input:
+        # Append user input to history
+        st.session_state.history.append({"role": "user", "content": user_input})
+
+        # Create full prompt from history
+        full_prompt = "You are a helpful assistant.\n\n"
+        for msg in st.session_state.history:
+            if msg["role"] == "user":
+                full_prompt += f"User: {msg['content']}\n"
+            else:
+                full_prompt += f"Assistant: {msg['content']}\n"
+        full_prompt += "Assistant:"
+
+        # Get model response
+        response = get_chat_response(full_prompt)
+
+        # Append assistant response to history
+        st.session_state.history.append({"role": "assistant", "content": response})
+
+        # Clear input field
+        st.experimental_rerun()
