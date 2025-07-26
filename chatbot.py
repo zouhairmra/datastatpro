@@ -1,19 +1,23 @@
 import streamlit as st
-from transformers import pipeline
+import requests
+import os
 
-# Load a financial Q&A model from Hugging Face
-@st.cache_resource
-def load_model():
-    return pipeline("text-generation", model="FinGPT/fingpt-mt_llama3-8b_lora")
+# Hugging Face Inference API settings
+API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct"
+HF_TOKEN = os.getenv("HF_API_TOKEN")
 
-generator = load_model()
+headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-def get_bot_response(prompt):
+def query(payload):
     try:
-        result = generator(prompt, max_length=200, do_sample=True, temperature=0.7)
-        return result[0]["generated_text"]
+        response = requests.post(API_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()[0]["generated_text"]
     except Exception as e:
         return f"⚠️ Error: {str(e)}"
+
+def get_bot_response(prompt):
+    return query({"inputs": prompt})
 
 def run_chatbot():
     st.set_page_config(page_title="EconBot 💼", layout="centered")
