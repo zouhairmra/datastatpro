@@ -1,13 +1,14 @@
 import streamlit as st
 import openai
 import os
-# Set your OpenAI API key
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Correct way to set the API key for openai>=1.0.0
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_bot_response(prompt):
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if you have access
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an expert assistant in economics and finance."},
                 {"role": "user", "content": prompt}
@@ -39,4 +40,3 @@ def run_chatbot():
         st.session_state.messages.append({"role": "assistant", "content": response})
         with st.chat_message("assistant"):
             st.markdown(response)
-
