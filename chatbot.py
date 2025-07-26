@@ -65,4 +65,4 @@ def run_chatbot():
         st.session_state.history.append({"role": "assistant", "content": response})
 
         # Clear input field
-        st.experimental_rerun()
+        st.rerun()
