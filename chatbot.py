@@ -64,5 +64,4 @@ def run_chatbot():
         # Append assistant response to history
         st.session_state.history.append({"role": "assistant", "content": response})
 
-        # Clear input field
-        st.rerun()
+       
