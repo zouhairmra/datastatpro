@@ -1,34 +1,34 @@
 import streamlit as st
 import requests
 
-def run_chatbot():
-    st.title("💬 Economics Chatbot (Mistral-7B via Hugging Face)")
+# ✅ Directly define your API key and endpoint here
+HF_API_KEY = "hf_YourTokenHere"
+HF_API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha"
 
-    user_input = st.text_input("Ask something about economics or finance:")
+def query(payload):
+    headers = {
+        "Authorization": f"Bearer {HF_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()[0]['generated_text']
+    else:
+        return f"❌ Error {response.status_code}: {response.text}"
+
+def run_chatbot():
+    st.title("💬 Economics & Finance Chatbot")
+
+    history = st.session_state.get("history", [])
+    user_input = st.text_input("Ask a question about economics or finance:")
 
     if user_input:
         with st.spinner("Thinking..."):
-            answer = ask_huggingface(user_input)
-            st.markdown(f"**Bot:** {answer}")
+            prompt = f"<|user|>\n{user_input}\n<|assistant|>"
+            output = query({"inputs": prompt})
+            history.append((user_input, output))
+            st.session_state["history"] = history
 
-def ask_huggingface(prompt):
-    api_url = st.secrets["HF_API_URL"]
-    headers = {
-        "Authorization": f"Bearer {st.secrets['HF_API_KEY']}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "inputs": prompt,
-        "parameters": {"max_new_tokens": 100}
-    }
-
-    response = requests.post(api_url, headers=headers, json=payload)
-
-    if response.status_code == 200:
-        result = response.json()
-        try:
-            return result[0]["generated_text"]
-        except Exception:
-            return result
-    else:
-        return f"❌ Error {response.status_code}: {response.text}"
+    for user_q, bot_a in reversed(history):
+        st.markdown(f"**You**: {user_q}")
+        st.markdown(f"**Bot**: {bot_a}")
