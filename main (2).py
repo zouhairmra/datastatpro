@@ -1,2 +1,7 @@
+# main.py
+
 import chatbot
-chatbot.run_chatbot()
+
+if __name__ == "__main__":
+    chatbot.run_chatbot()
+
