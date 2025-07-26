@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 import os
 
-# Correct way to set the API key for openai>=1.0.0
+# Set the API key directly from environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_bot_response(prompt):
