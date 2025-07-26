@@ -1,16 +1,11 @@
 import streamlit as st
 import requests
-import os
 
-# Hugging Face Inference API configuration
-API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
-HF_TOKEN = os.getenv("HF_API_TOKEN")
-
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
 
 def query_huggingface(prompt):
     try:
-        response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
+        response = requests.post(API_URL, json={"inputs": prompt})
         response.raise_for_status()
         result = response.json()
         if isinstance(result, list) and "generated_text" in result[0]:
