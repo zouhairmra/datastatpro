@@ -1,7 +1,3 @@
-# main.py
+from chatbot import run_chatbot
 
-import chatbot
-
-if __name__ == "__main__":
-    chatbot.run_chatbot()
 
