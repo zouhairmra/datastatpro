@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-
+st.write("Loaded secrets:", st.secrets)
 # Secure API key access
 TOGETHER_API_KEY = st.secrets["together"]["api_key"]
 
