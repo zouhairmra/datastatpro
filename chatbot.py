@@ -2,9 +2,6 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import requests
-import openai
-import sys
-import os
 st.title("🧠 AI Economics Assistant (Mistral-7B)")
 
 api_key = st.text_input("🔑 Enter your Together AI API Key", type="password")
