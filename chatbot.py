@@ -1,15 +1,24 @@
 import streamlit as st
+import openai
+import os
 
-def get_bot_response(text):
-    text = text.lower()
-    if "inflation" in text:
-        return "Inflation is the rate at which prices increase over time."
-    elif "gdp" in text:
-        return "GDP stands for Gross Domestic Product, a measure of a country's economic output."
-    elif "interest rate" in text:
-        return "Interest rates are set by central banks to control inflation and economic growth."
-    else:
-        return "I'm still learning! Try asking about inflation, GDP, or interest rates."
+# Set your OpenAI API key securely
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def get_bot_response(prompt):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # or "gpt-4" if available
+            messages=[
+                {"role": "system", "content": "You are an expert assistant in economics and finance."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=500
+        )
+        return response.choices[0].message["content"].strip()
+    except Exception as e:
+        return f"⚠️ Error: {str(e)}"
 
 def run_chatbot():
     st.set_page_config(page_title="EconBot 💼", layout="centered")
