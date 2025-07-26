@@ -1,3 +1,5 @@
+# chatbot.py
+
 from transformers import pipeline
 import streamlit as st
 
@@ -7,6 +9,12 @@ def load_model():
 
 generator = load_model()
 
-def ask_bot(question):
-    response = generator(question, max_length=100, temperature=0.7)[0]["generated_text"]
-    return response
+def run_chatbot():
+    st.title("💬 Economics & Finance Chatbot")
+
+    user_input = st.text_input("Ask me anything about economics or finance:")
+
+    if user_input:
+        with st.spinner("Thinking..."):
+            result = generator(user_input, max_length=100, temperature=0.7)[0]["generated_text"]
+            st.success(result)
