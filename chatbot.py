@@ -1,13 +1,13 @@
 import os
-from openai import OpenAI
+from huggingface_hub import InferenceClient
 
-client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
+client = InferenceClient(
+    provider="featherless-ai",
     api_key=os.environ["HF_TOKEN"],
 )
 
 completion = client.chat.completions.create(
-    model="mistralai/Mistral-7B-Instruct-v0.2:featherless-ai",
+    model="mistralai/Mistral-7B-Instruct-v0.2",
     messages=[
         {
             "role": "user",
