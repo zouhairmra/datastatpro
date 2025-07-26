@@ -1,22 +1,17 @@
 import streamlit as st
-import openai
-import os
+from transformers import pipeline
 
-# Set the API key directly from environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Load a financial Q&A model from Hugging Face
+@st.cache_resource
+def load_model():
+    return pipeline("text-generation", model="FinGPT/fingpt-mt_llama3-8b_lora")
+
+generator = load_model()
 
 def get_bot_response(prompt):
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert assistant in economics and finance."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
-        return response.choices[0].message.content.strip()
+        result = generator(prompt, max_length=200, do_sample=True, temperature=0.7)
+        return result[0]["generated_text"]
     except Exception as e:
         return f"⚠️ Error: {str(e)}"
 
