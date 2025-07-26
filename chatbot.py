@@ -1,11 +1,7 @@
 import streamlit as st
 import requests
-import streamlit as st
-import os
-import requests
 
-st.write("Secrets content:", st.secrets)  # DEBUG LINE
-
+# Secure API key access
 TOGETHER_API_KEY = st.secrets["together"]["api_key"]
 
 def get_chat_response(prompt):
@@ -33,33 +29,40 @@ def run_chatbot():
     st.title("🧠 ChatBot - Mistral 7B Assistant")
     st.caption("Powered by Together AI & Mistral-7B-Instruct-v0.2")
 
+    # Initialize session state
     if "history" not in st.session_state:
         st.session_state.history = []
 
-    # Show chat history
+    # Display chat history
     for message in st.session_state.history:
         if message["role"] == "user":
             st.markdown(f"**🧑 You:** {message['content']}")
         else:
             st.markdown(f"**🤖 Bot:** {message['content']}")
 
-    # Input area with key user_input
-user_input = st.text_input("💬 Ask a question", key="user_input")
+    # Input field
+    user_input = st.text_input("💬 Ask your question", key="user_input")
 
-if st.button("Send") and user_input.strip():
-    st.session_state.history.append({"role": "user", "content": user_input.strip()})
+    if st.button("Send") and user_input.strip():
+        # Append user message
+        st.session_state.history.append({"role": "user", "content": user_input.strip()})
 
-    # Build prompt from conversation history
-    full_prompt = "You are a helpful assistant.\n\n"
-    for msg in st.session_state.history:
-        role = "User" if msg["role"] == "user" else "Assistant"
-        full_prompt += f"{role}: {msg['content']}\n"
-    full_prompt += "Assistant:"
+        # Construct full prompt
+        full_prompt = "You are a helpful assistant.\n\n"
+        for msg in st.session_state.history:
+            role = "User" if msg["role"] == "user" else "Assistant"
+            full_prompt += f"{role}: {msg['content']}\n"
+        full_prompt += "Assistant:"
 
-    with st.spinner("🤖 Bot is thinking..."):
-        response = get_chat_response(full_prompt)
+        with st.spinner("🤖 Thinking..."):
+            response = get_chat_response(full_prompt)
 
-    st.session_state.history.append({"role": "assistant", "content": response})
+        # Append bot response
+        st.session_state.history.append({"role": "assistant", "content": response})
+        # Clear input
+        st.session_state["user_input"] = ""
 
-    # Clear the text input by setting session_state key to empty string
-    st.session_state["user_input"] = ""
+    # Option to clear chat
+    if st.button("🧹 Clear Chat"):
+        st.session_state.history = []
+        st.experimental_rerun()
