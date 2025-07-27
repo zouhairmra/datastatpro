@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
-from langdetect import detect
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 def run_chatbot():
     st.set_page_config(page_title="💬 Chatbot", layout="centered")
