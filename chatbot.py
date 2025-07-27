@@ -54,9 +54,16 @@ def run_chatbot():
                 raw_output = response.json()["choices"][0]["text"].strip()
                 answer = raw_output.split("User:")[0].split("Assistant:")[0].strip()
 
-                # Translate if needed
-                if lang == "ar":
-                    answer = translator.translate(answer, dest="ar").text
+from deep_translator import GoogleTranslator
+from langdetect import detect
+
+def translate_text(text, target_lang="en"):
+    detected_lang = detect(text)
+    if detected_lang != target_lang:
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
+    else:
+        return text
 
                 st.session_state.chat_history.append({"role": "assistant", "content": answer})
                 st.markdown(f"🤖 **Bot:** {answer}")
