@@ -44,7 +44,8 @@ def run_chatbot():
             try:
                 response = requests.post(API_URL, headers=HEADERS, json=payload)
                 response.raise_for_status()
-              raw_output = response.json()["choices"][0]["text"].strip()
+                answer = response.json()["choices"][0]["text"].strip()
+
                 # Save and display only the latest bot response
                 st.session_state.chat_history.append({"role": "assistant", "content": answer})
                 st.markdown(f"🤖 **Bot:** {answer}")
