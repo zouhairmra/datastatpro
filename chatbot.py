@@ -25,7 +25,7 @@ def run_chatbot():
         user_msg = user_input.strip()
         st.session_state.chat_history.append({"role": "user", "content": user_msg})
 
-        # Build full prompt for the model (not displayed)
+        # Build full prompt
         full_prompt = "You are a helpful assistant that replies in the same language as the user.\n"
         for msg in st.session_state.chat_history:
             role = "User" if msg["role"] == "user" else "Assistant"
@@ -44,9 +44,11 @@ def run_chatbot():
             try:
                 response = requests.post(API_URL, headers=HEADERS, json=payload)
                 response.raise_for_status()
-                answer = response.json()["choices"][0]["text"].strip()
+                raw_output = response.json()["choices"][0]["text"].strip()
 
-                # Save and display only the latest bot response
+                # ✅ Fix: cut off any continuation of the conversation
+                answer = raw_output.split("User:")[0].split("Assistant:")[0].strip()
+
                 st.session_state.chat_history.append({"role": "assistant", "content": answer})
                 st.markdown(f"🤖 **Bot:** {answer}")
             except requests.exceptions.HTTPError as err:
@@ -54,7 +56,7 @@ def run_chatbot():
             except Exception as e:
                 st.error(f"❌ Unexpected error: {e}")
 
-    # Clear user messages only
+    # Clear only user messages
     if st.button("🧹 Clear User Messages"):
         st.session_state.chat_history = [msg for msg in st.session_state.chat_history if msg["role"] == "assistant"]
         st.rerun()
