@@ -1,7 +1,5 @@
 import streamlit as st
 import requests
-from deep_translator import GoogleTranslator
-from langdetect import detect
 def run_chatbot():
     st.set_page_config(page_title="💬 Chatbot", layout="centered")
 
@@ -54,14 +52,7 @@ def run_chatbot():
                 raw_output = response.json()["choices"][0]["text"].strip()
                 answer = raw_output.split("User:")[0].split("Assistant:")[0].strip()
 
-from deep_translator import GoogleTranslator
-from langdetect import detect
 
-def translate_text(text, target_lang="en"):
-    detected_lang = detect(text)
-    if detected_lang != target_lang:
-        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-        return translated
     else:
         return text
 
