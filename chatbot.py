@@ -1,16 +1,5 @@
 import streamlit as st
 import requests
-
-# --- ADDED SECTION: Language detection ---
-from langdetect import detect
-
-def detect_language(text):
-    try:
-        lang = detect(text)
-        return lang
-    except:
-        return "en"
-
 def run_chatbot():
     st.set_page_config(page_title="📊 Economics & Finance Chatbot", layout="centered")
 
