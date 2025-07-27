@@ -45,15 +45,6 @@ def run_chatbot():
                 response = requests.post(API_URL, headers=HEADERS, json=payload)
                 response.raise_for_status()
               raw_output = response.json()["choices"][0]["text"].strip()
-
-# Stop at first simulated user message
-answer = raw_output.split("User:")[0].strip()
-
-# Also stop if the model continues with another "Assistant:"
-if "Assistant:" in answer:
-    answer = answer.split("Assistant:")[0].strip()
-
-
                 # Save and display only the latest bot response
                 st.session_state.chat_history.append({"role": "assistant", "content": answer})
                 st.markdown(f"🤖 **Bot:** {answer}")
