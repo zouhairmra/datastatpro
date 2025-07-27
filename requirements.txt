@@ -2,5 +2,7 @@ transformers>=4.40.0
 torch>=2.0
 streamlit>=1.25.0
 requests>=2.25.1
+langdetect
+googletrans==4.0.0-rc1
 
 
