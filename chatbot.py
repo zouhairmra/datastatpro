@@ -79,5 +79,4 @@ with st.sidebar:
         index=0
     )
 
-    # RTL setting for Arabic
-    enable_rtl = st.checkbox("📱 Enable Arabic RTL Interface", value=False)
+
