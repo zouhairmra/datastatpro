@@ -63,3 +63,5 @@ def run_chatbot():
                 st.error(f"❌ Error {err.response.status_code}: {err.response.text}")
             except Exception as e:
                 st.error(f"❌ Unexpected error: {e}")
+# --- ADDED SECTION: Custom system prompt ---
+        system_prompt = "You are a helpful assistant that answers clearly and intelligently in the same language used by the user.\n"
