@@ -65,3 +65,5 @@ def run_chatbot():
                 st.error(f"❌ Unexpected error: {e}")
 # --- ADDED SECTION: Custom system prompt ---
         system_prompt = "You are a helpful assistant that answers clearly and intelligently in the same language used by the user.\n"
+# --- ADDED SECTION: Model selector ---
+    model_choice = st.selectbox("Choose a model", ["mistralai/Mistral-7B-Instruct-v0.2"], index=0)
